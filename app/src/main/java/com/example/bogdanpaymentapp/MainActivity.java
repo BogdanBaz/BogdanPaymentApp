@@ -44,7 +44,7 @@ public class MainActivity extends AppCompatActivity {
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
-        Log.d(TAG, "= onCreate = , savedInstanceState: " + savedInstanceState);
+        //  Log.d(TAG, "= onCreate = , savedInstanceState: " + savedInstanceState);
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_main);
 
@@ -73,7 +73,7 @@ public class MainActivity extends AppCompatActivity {
                 "com.evopayments.payiso.MainActivity"));
 
         sendIntent.setAction("com.evopayments.payiso.PERFORM_TRANSACTION");
-       // sendIntent.addCategory(Intent.CATEGORY_DEFAULT);
+        // sendIntent.addCategory(Intent.CATEGORY_DEFAULT);
 
         sendIntent.putExtra("title", getTransactionTitle());
         sendIntent.putExtra("amount", getTransactionAmount());
@@ -86,7 +86,7 @@ public class MainActivity extends AppCompatActivity {
         }
         try {
             mStartForResult.launch(sendIntent);
-            Log.d(TAG, "startForResult, intent get type: " + sendIntent.getStringExtra("type"));
+            //  Log.d(TAG, "startForResult, intent get type: " + sendIntent.getStringExtra("type"));
 
         } catch (ActivityNotFoundException exception) {
             Log.d(TAG, " ActivityNotFoundException ");
@@ -126,26 +126,29 @@ public class MainActivity extends AppCompatActivity {
                 @SuppressLint("SetTextI18n")
                 @Override
                 public void onActivityResult(ActivityResult result) {
-                    Log.d(TAG, "=Activity.RESULT is: " + result);
+                    //      Log.d(TAG, "=Activity.RESULT is: " + result);
 
                     if (result.getResultCode() == Activity.RESULT_OK) {
                         Intent intent = result.getData();
-                        Log.d(TAG, "=Activity.RESULT_OK=");
+                        //   Log.d(TAG, "=Activity.RESULT_OK=");
                         if (intent != null) {
 
-                                    responseText.setText(getActionName (( int) Integer .parseInt( intent . getStringExtra ( "type" ) ) ) + "\n"
-                                    + ( intent . getStringExtra ( "result" ) . contentEquals ( "TRANSACTION_RESULT_OK" )
-                                    ? "transaction_accepted" : "transaction_refused" ) + "\n"
-                                    + ( intent . getStringExtra ( "CARD_TOKEN_KEY" ) != null
-                                    ? intent . getStringExtra ( "CARD_TOKEN_KEY" ) : "")
-                                    + ( intent . getStringExtra ( "ERROR_MESSAGE_KEY" ) != null
-                                    ? ( intent . getStringExtra ( "ERROR_MESSAGE_KEY" ) ) : ""));
+                            responseText.setText(getActionName((int) Integer.parseInt(intent.getStringExtra("type"))) + "\n"
+                                    + (intent.getStringExtra("result").contentEquals("0")
+                                    ? "transaction_accepted" : "transaction_refused") + "\n"
+                                    + (intent.getStringExtra("token") != null
+                                    ? intent.getStringExtra("token") : "")
+                                    + (intent.getStringExtra("errorMessage") != null
+                                    ? (intent.getStringExtra("errorMessage")) : ""));
 
                             if (intent.getStringExtra("result").contentEquals("0")) {// accepted
                                 responseText.setTextColor(getColor(R.color.purple_700));
                             } else {
                                 responseText.setTextColor(getColor(com.google.android.material.R.color.design_default_color_error));
                             }
+
+                            printLogs(intent);
+
                         } else {
                             responseText.setText(result.toString());
                         }
@@ -153,6 +156,29 @@ public class MainActivity extends AppCompatActivity {
                         Log.d(TAG, "=Activity.RESULT_CANCELED=");
                         responseText.setText(result.toString());
                     }
+
+
+                }
+
+                private void printLogs(Intent intent) {
+                    String result;
+                    //  String type = intent.getStringExtra("type");
+                    String type = "*" + getActionName((int) Integer.parseInt(intent.getStringExtra("type"))) + "*" +
+                                            "  ,  (value = " + intent.getStringExtra("type") + ")";
+                    result = intent.getStringExtra("result");
+                    if (result != null) {
+                        if (result.equals(String.valueOf(0))) {
+                            result = "*OK*  ,  (value = 0 )";
+                        } else if (result.equals(String.valueOf(1))) result = "*NOT OK*  ,  (value = 1)";
+                    }
+                    String token = intent.getStringExtra("token");
+                    String errorMessage = intent.getStringExtra("errorMessage");
+
+                    Log.d(TAG, "\n" + "Response from evoPay:    " + "\n\n" +
+                            "in 'type' key:    " + type + "\n" +
+                            "in 'result' key:    " + result + "\n" +
+                            "in 'token' key:    " + token + "\n" +
+                            "in 'errorMessage' key:    " + errorMessage + "\n");
                 }
             });
 
@@ -169,7 +195,7 @@ public class MainActivity extends AppCompatActivity {
     protected void onPostResume() {
         super.onPostResume();
         Bundle extras = getIntent().getExtras();
-    //    if (extras == null)
-    //        Toast.makeText(this, "getIntent().getExtras()  = NULL ", Toast.LENGTH_LONG).show();
+        //    if (extras == null)
+        //        Toast.makeText(this, "getIntent().getExtras()  = NULL ", Toast.LENGTH_LONG).show();
     }
 }
